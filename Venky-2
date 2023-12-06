@@ -1,0 +1,48 @@
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+
+# Load the Titanic dataset (you can download it from Kaggle: https://www.kaggle.com/c/titanic/data)
+# For this example, I'll assume the dataset is saved as 'titanic.csv'
+titanic_data = pd.read_csv('titanic.csv')
+
+# Explore the dataset and handle missing values
+# For simplicity, I'll fill missing values with mean for numerical features and mode for categorical features
+titanic_data.fillna(titanic_data.mean(), inplace=True)
+titanic_data.fillna(titanic_data.mode().iloc[0], inplace=True)
+
+# Feature selection
+# For simplicity, I'll use only a few features. You may want to explore and include more features based on your analysis.
+features = ['Pclass', 'Sex', 'Age', 'SibSp', 'Parch', 'Fare', 'Embarked']
+X = titanic_data[features]
+y = titanic_data['Survived']
+
+# Convert categorical variables to numerical using one-hot encoding
+X = pd.get_dummies(X, columns=['Sex', 'Embarked'])
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Standardize the features
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Build a logistic regression model
+model = LogisticRegression()
+model.fit(X_train, y_train)
+
+# Make predictions on the test set
+y_pred = model.predict(X_test)
+
+# Evaluate the model
+accuracy = accuracy_score(y_test, y_pred)
+conf_matrix = confusion_matrix(y_test, y_pred)
+classification_rep = classification_report(y_test, y_pred)
+
+print(f"Accuracy: {accuracy}")
+print(f"Confusion Matrix:\n{conf_matrix}")
+print(f"Classification Report:\n{classification_rep}")
