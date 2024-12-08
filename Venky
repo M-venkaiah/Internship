@@ -1,0 +1,36 @@
+
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+data = pd.read_csv('sms_data.csv')
+# Assuming your data has 'text' and 'label' columns
+X = data['text']
+y = data['label']
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Use CountVectorizer to convert text data into a matrix of token counts
+vectorizer = CountVectorizer()
+X_train_vectorized = vectorizer.fit_transform(X_train)
+X_test_vectorized = vectorizer.transform(X_test)
+# Use a simple Naive Bayes classifier
+model = MultinomialNB()
+model.fit(X_train_vectorized, y_train)
+# Make predictions on the test set
+predictions = model.predict(X_test_vectorized)
+
+# Evaluate the model performance
+accuracy = accuracy_score(y_test, predictions)
+conf_matrix = confusion_matrix(y_test, predictions)
+classification_rep = classification_report(y_test, predictions)
+
+print(f'Accuracy: {accuracy}')
+print(f'Confusion Matrix:\n{conf_matrix}')
+print(f'Classification Report:\n{classification_rep}')
+# You can use the trained model to predict whether a new SMS is spam or non-spam
+new_sms = ["Free offer! Click here to claim your prize.", "Hi, how are you doing today?"]
+new_sms_vectorized = vectorizer.transform(new_sms)
+new_predictions = model.predict(new_sms_vectorized)
+
+print(f'Predictions for new SMS: {new_predictions}')
